@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 
 app.post("/register", async (req, res) => {
 
-    let { email, password, username, age } = req.body;
+    let { email, password, name, username, age } = req.body;
     let user = await userModel.findOne({ email })
 
     if (user) return res.status(500).send("user already registered");
@@ -38,6 +38,9 @@ app.post("/register", async (req, res) => {
                 name,
                 password: hash
             })
+
+            let token = jwt.sign({ email: email, username: user._id }, "shhhh")
+            res.cookie("token" , token) ;
 
         })
     })

@@ -29,8 +29,16 @@ app.post("/register", async (req, res) => {
     if (user) return res.status(500).send("user already registered");
 
     bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(password, salt , (err,hash) =>{
-            console.log(hash); 
+        bcrypt.hash(password, salt, async (err, hash) => {
+
+            let user = await userModel.create({
+                username,
+                email,
+                age,
+                name,
+                password: hash
+            })
+
         })
     })
 

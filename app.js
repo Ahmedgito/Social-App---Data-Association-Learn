@@ -28,7 +28,8 @@ app.post("/register", async (req, res) => {
     let user = await userModel.findOne({ email })
 
     if (user) return res.status(500).send("user already registered");
-
+    if (!user) return res.status(500).send("Something went Wrong") ; 
+    
     bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(password, salt, async (err, hash) => {
 
@@ -45,6 +46,12 @@ app.post("/register", async (req, res) => {
             res.send("Registered") ;
         })
     })
+
+});
+
+app.get("/login", (req, res) => {
+
+    res.render("login");
 
 });
 

@@ -1,8 +1,9 @@
 const express = require("express");
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt') ;
+const jwt = require('jsonwebtoken') ;
 const bodyParser = require("body-parser");
 const userModel = require("./models/user");
+const postModel = require("./models/post") ;
 const cookieParser = require("cookie-parser");
 const app = express()
 const port = process.env.PORT || 5000;
@@ -41,7 +42,7 @@ app.post("/register", async (req, res) => {
 
             let token = jwt.sign({ email: email, username: user._id }, "shhhh")
             res.cookie("token" , token) ;
-
+            res.send("Registered") ;
         })
     })
 

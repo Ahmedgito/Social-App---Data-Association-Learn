@@ -5,86 +5,99 @@ const bodyParser = require("body-parser");
 const userModel = require("./models/user");
 const postModel = require("./models/post");
 const cookieParser = require("cookie-parser");
-const app = express()
-const port = process.env.PORT || 5000;
 
+const app = express();
+const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.set("view engine", 'ejs');
-
+app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-
     res.render("index");
-
 });
 
 app.get("/login", (req, res) => {
     res.render("login");
 });
 
+app.get("/register", (req, res) => {
+    res.render("register");
+});
+
 app.post("/register", async (req, res) => {
+    const { email, password, name, username, age } = req.body;
 
-    let { email, password, name, username, age } = req.body;
+    try {
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) return res.status(400).send("User already registered");
 
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
 
-    let user = await userModel.findOne({ email })
-    if (user) return res.status(500).send("user already registered");
+        const user = await userModel.create({
+            username,
+            email,
+            age,
+            name,
+            password: hash
+        });
 
-    bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(password, salt, async (err, hash) => {
-
-            let user = await userModel.create({
-                username,
-                email,
-                age,
-                name,
-                password: hash
-            })
-
-            let token = jwt.sign({ email: email, username: user._id }, "shhhh")
-            res.cookie("token", token);
-            res.send("Registered");
-        })
-    })
-
+        const token = jwt.sign({ email: user.email, id: user._id }, "shhhh");
+        res.cookie("token", token);
+        res.send("Registered Successfully");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Registration Failed");
+    }
 });
 
 app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
 
-    let { email, password } = req.body;
-    let user = await userModel.findOne({ email })
-    if (!user) return res.status(500).send("Something went Wrong");
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) return res.status(400).send("Invalid email or password");
 
-    bcrypt.compare(password, user.password, (err, result) => {
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) return res.status(400).send("Invalid email or password");
 
-        if (result) {
-            let token = jwt.sign({ email: email, username: user._id }, "shhhh")
-            res.cookie("token", token);
-            res.send("Registered");
-            res.status(200).send("You can login");
-        }
-
-        else res.redirect('/login');
-
-    })
+        const token = jwt.sign({ email: user.email, id: user._id }, "shhhh");
+        res.cookie("token", token);
+        res.status(200).send("Logged in successfully");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Login failed");
+    }
 });
 
 app.get("/logout", (req, res) => {
-    res.cookies("token", token)
-    res.redirect('/login');
+    res.clearCookie("token");
+    res.redirect("/login");
 });
 
+// Protected route
+app.get("/profile", isLoggedIn, (req, res) => {
+    res.render("profile", { user: req.user });
+});
+
+// Auth middleware
 function isLoggedIn(req, res, next) {
-    if (req.cookies.token === "") res.send("You Must be Logged in");
-    else {
-        let data = jwt.verify(req.cookies.token, "shhhh");
+    const token = req.cookies.token;
+
+    if (!token) return res.status(401).send("You must be logged in");
+
+    try {
+        const data = jwt.verify(token, "shhhh");
         req.user = data;
+        next();
+    } catch (err) {
+        return res.status(401).send("Invalid token");
     }
-    next();
 }
 
-app.listen(port, () => `Server running on port ${port} 🔥`);
+app.listen(port, () => {
+    console.log(`Server running on port ${port} 🔥`);
+});

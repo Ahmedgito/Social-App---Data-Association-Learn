@@ -6,17 +6,19 @@
     <title>Profile - <%= user.name %></title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body
-    class="bg-zinc-900 text-white min-h-screen flex flex-col items-center p-6"
-  >
-    <div class="max-w-xl w-full">
-      <!-- Header Section -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">Welcome, <%= user.name %> 👋</h1>
+  <body class="bg-zinc-950 text-white min-h-screen p-4 flex items-center justify-center">
+    <div class="w-full max-w-3xl bg-zinc-900 rounded-2xl shadow-xl p-6 space-y-10">
+      
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight">Welcome, <%= user.name %> 👋</h1>
+          <p class="text-zinc-400 text-sm mt-1">@<%= user.username %></p>
+        </div>
         <form action="/logout" method="GET">
           <button
             type="submit"
-            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium"
+            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all"
           >
             Logout
           </button>
@@ -24,42 +26,43 @@
       </div>
 
       <!-- Post Creation -->
-      <h3 class="text-lg mb-3">Create a post</h3>
-      <form action="/post" method="POST" class="space-y-4">
-        <textarea
-          name="content"
-          placeholder="What's on your mind?"
-          class="w-full p-3 rounded-lg bg-zinc-800 text-white resize-none"
-          rows="5"
-          required
-        ></textarea>
-
-        <button
-          type="submit"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
-        >
-          Post
-        </button>
-      </form>
+      <div>
+        <h2 class="text-xl font-semibold mb-3">Create a post</h2>
+        <form action="/post" method="POST" class="space-y-4">
+          <textarea
+            name="content"
+            placeholder="What's on your mind?"
+            class="w-full p-4 rounded-lg bg-zinc-800 text-white resize-none border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            rows="5"
+            required
+          ></textarea>
+          <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-all"
+          >
+            Post
+          </button>
+        </form>
+      </div>
 
       <!-- Posts List -->
-      <div class="mt-10">
-        <h3 class="text-lg font-semibold mb-4">Your Posts</h3>
-
-        <div class="space-y-4">
-          <div class="bg-zinc-800 p-4 rounded-lg">
-            <h4 class="text-sm text-blue-400">@username</h4>
-            <p class="mt-3 text-white">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis,
-              fugiat.
-            </p>
-            <div class="btns flex gap-4 mt-3">
-              <a class="text-red-500 cursor-pointer"> Like </a>
-              <a class="text-zinc-500 cursor-pointer"> edit </a>
+      <div>
+        <h2 class="text-xl font-semibold mb-4">Your Posts</h2>
+        <div class="space-y-6">
+          <% user.post  .reverse().forEach(function(post) { %>
+            <div class="bg-zinc-800 p-5 rounded-lg shadow hover:shadow-md transition-all">
+              <div class="flex justify-between items-center">
+                <h4 class="text-sm text-blue-400 font-medium">@<%= user.username %></h4>
+                <span class="text-xs text-zinc-500">Posted just now</span>
+              </div>
+              <p class="mt-3 text-white text-base"><%= post.content %></p>
+              <div class="flex gap-4 mt-4 text-sm">
+                <a class="text-red-500 hover:underline cursor-pointer">Like</a>
+                <a class="text-zinc-400 hover:underline cursor-pointer">Edit</a>
+              </div>
             </div>
-          </div>
+          <% }) %>
         </div>
-        
       </div>
     </div>
   </body>

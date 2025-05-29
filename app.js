@@ -15,6 +15,11 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
+app.get("/feed", async (req, res) => {
+    const posts = await postModel.find().populate("user");
+    res.render("feed", { posts });
+});
+
 app.get("/", (req, res) => {
     res.render("index");
 });
@@ -56,8 +61,7 @@ app.post("/register", async (req, res) => {
 
 app.get("/profile", isLoggedIn, async (req, res) => {
 
-    let user = await userModel.findOne({ email: req.user.email })
-    user.populate("post") ;
+    let user = await userModel.findOne({ email: req.user.email }).populate("post");
     res.render("profile", { user });
 });
 
@@ -89,7 +93,7 @@ app.get("/logout", (req, res) => {
 
 // Protected route
 app.post("/post", isLoggedIn, async (req, res) => {
-    let user = await userModel.findOne({ email: req.user.email })   
+    let user = await userModel.findOne({ email: req.user.email })
     let { content } = req.body;
 
     let post = await postModel.create({

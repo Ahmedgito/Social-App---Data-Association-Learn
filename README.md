@@ -2,8 +2,8 @@
 
 _Connect, Share, and Grow Your Social Experience_
 
-![Last Commit](https://img.shields.io/github/last-commit/Ahwegito/Social-App---Data-Association-Learn)
-![Languages](https://img.shields.io/github/languages/top/Ahwegito/Social-App---Data-Association-Learn)
+![Last Commit](https://img.shields.io/github/last-commit/Ahmedgito/Social-App---Data-Association-Learn)
+![Languages](https://img.shields.io/github/languages/top/Ahmedgito/Social-App---Data-Association-Learn)
 
 Built with the tools and technologies:  
 ![Express](https://img.shields.io/badge/-Express-black?logo=express)  

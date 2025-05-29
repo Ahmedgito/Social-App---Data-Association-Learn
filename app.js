@@ -79,8 +79,9 @@ app.get("/logout", (req, res) => {
 });
 
 // Protected route
-app.get("/profile", isLoggedIn, (req, res) => {
-    res.render("profile", { user: req.user });
+app.get("/profile", isLoggedIn, async (req, res) => {
+    let user = await userModel.findOne({email : req.user.email})
+    res.render("profile", { user });
 });
 
 // Auth middleware

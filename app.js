@@ -54,6 +54,13 @@ app.post("/register", async (req, res) => {
     }
 });
 
+app.get("/profile", isLoggedIn, async (req, res) => {
+
+    let user = await userModel.findOne({ email: req.user.email })
+    user.populate("post") ;
+    res.render("profile", { user });
+});
+
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
@@ -66,7 +73,9 @@ app.post("/login", async (req, res) => {
 
         const token = jwt.sign({ email: user.email, id: user._id }, "shhhh");
         res.cookie("token", token);
-        res.status(200).send("Logged in successfully");
+        res.redirect('/profile');
+        res.status(200);
+
     } catch (err) {
         console.error(err);
         res.status(500).send("Login failed");
@@ -79,10 +88,25 @@ app.get("/logout", (req, res) => {
 });
 
 // Protected route
-app.get("/profile", isLoggedIn, async (req, res) => {
-    let user = await userModel.findOne({email : req.user.email})
-    res.render("profile", { user });
+app.post("/post", isLoggedIn, async (req, res) => {
+    let user = await userModel.findOne({ email: req.user.email })   
+    let { content } = req.body;
+
+    let post = await postModel.create({
+        user: user._id,
+        content
+    }
+    )
+
+    user.post.push(post._id);
+    await user.save();
+
+    res.redirect('/profile');
+
 });
+
+
+
 
 // Auth middleware
 function isLoggedIn(req, res, next) {
